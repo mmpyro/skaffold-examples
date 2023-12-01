@@ -2,3 +2,4 @@ Dockerfile
 .dockerignore
 k8s
 tests
+structure-test

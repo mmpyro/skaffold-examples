@@ -1,0 +1,24 @@
+apiVersion: skaffold/v4beta8
+kind: Config
+metadata:
+  name: skaffold-example
+build:
+  tagPolicy:
+    gitCommit: {}
+  artifacts:
+    - image: nodejs-app
+      docker:
+        dockerfile: Dockerfile
+  local:
+    useDockerCLI: false
+    useBuildkit: false
+deploy:
+  docker:
+    images: [nodejs-app]
+manifests:
+  rawYaml:
+    - k8s/manifest.yaml
+test:
+  - image: nodejs-app
+    structureTests:
+      - './structure-test/*'

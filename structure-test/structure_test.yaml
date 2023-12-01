@@ -1,0 +1,15 @@
+schemaVersion: 2.0.0
+
+fileExistenceTests:
+  - name: 'check node_modules'
+    path: '/usr/src/app/node_modules'
+    shouldExist: true
+  
+  - name: 'check app.js'
+    path: '/usr/src/app/app.js'
+    shouldExist: true
+
+metadataTest:
+  exposedPorts: ["3000"]
+  cmd: ["node", "app.js"]
+  workdir: "/usr/src/app"
