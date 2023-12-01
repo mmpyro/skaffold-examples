@@ -2,8 +2,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: nodejs-app-deployment
+  namespace: {{ .Values.namespace }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
       app: nodejs-app
@@ -14,9 +15,9 @@ spec:
     spec:
       containers:
       - name: nodejs-app
-        image: nodejs-app:latest
+        image: {{ .Values.image }}
         ports:
-        - containerPort: 3000
+        - containerPort: {{ .Values.containerPort }}
         resources:
           limits:
             cpu: "0.5"
@@ -31,11 +32,12 @@ apiVersion: v1
 kind: Service
 metadata:
   name: nodejs-app-service
+  namespace: {{ .Values.namespace }}
 spec:
   selector:
     app: nodejs-app
   ports:
     - protocol: TCP
       port: 80
-      targetPort: 3000
+      targetPort: {{ .Values.containerPort }}
   type: LoadBalancer

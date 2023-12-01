@@ -1,0 +1,4 @@
+replicaCount: 2
+containerPort: 3000
+namespace: dev
+image: gcr.io/flyr-gcr/nodejs-app

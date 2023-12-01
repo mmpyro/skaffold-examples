@@ -1,0 +1,4 @@
+replicaCount: 1
+containerPort: 3000
+namespace: default
+image: nodejs-app

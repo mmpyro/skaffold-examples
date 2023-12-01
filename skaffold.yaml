@@ -4,7 +4,7 @@ metadata:
   name: skaffold-example
 build:
   tagPolicy:
-    gitCommit: {}
+    inputDigest: {}
   artifacts:
     - image: nodejs-app
       docker:
@@ -13,12 +13,48 @@ build:
     useDockerCLI: false
     useBuildkit: false
 deploy:
-  docker:
-    images: [nodejs-app]
+  helm:
+    releases:
+      - name: nodejs-app
+        chartPath: helm/nodejs-app
+        valuesFiles:
+          - helm/nodejs-app/values-local.yaml
 manifests:
-  rawYaml:
-    - k8s/manifest.yaml
+  helm:
+    releases:
+      - name: nodejs-app
+        chartPath: helm/nodejs-app
+        valuesFiles:
+          - helm/nodejs-app/values-local.yaml
 test:
   - image: nodejs-app
     structureTests:
       - './structure-test/*'
+
+profiles:
+  - name: dev
+    build:
+      tagPolicy:
+        inputDigest: {}
+      artifacts:
+        - image: gcr.io/flyr-gcr/nodejs-app
+          docker:
+            dockerfile: Dockerfile
+    test:
+      - image: gcr.io/flyr-gcr/nodejs-app
+        structureTests:
+          - './structure-test/*'
+    deploy:
+      helm:
+        releases:
+          - name: nodejs-app
+            chartPath: helm/nodejs-app
+            valuesFiles:
+              - helm/nodejs-app/values-dev.yaml
+    manifests:
+      helm:
+        releases:
+          - name: nodejs-app
+            chartPath: helm/nodejs-app
+            valuesFiles:
+              - helm/nodejs-app/values-dev.yaml
