@@ -9,6 +9,9 @@ build:
     - image: nodejs-app
       docker:
         dockerfile: Dockerfile
+    - image: alpine-curl
+      docker:
+        dockerfile: Dockerfile.verify
   local:
     useDockerCLI: false
     useBuildkit: false
@@ -33,6 +36,16 @@ manifests:
         chartPath: helm/nodejs-app
         valuesFiles:
           - helm/nodejs-app/values-local.yaml
+verify:
+  - name: alpine-curl
+    container:
+      name: alpine-curl
+      image: "alpine-curl"
+      command: ["/bin/sh"]
+      args: ["-c", "curl -XGET http://nodejs-app-service:8081"]
+    executionMode:
+      kubernetesCluster: {}
+
 profiles:
   - name: dev
     build:
@@ -42,6 +55,9 @@ profiles:
         - image: gcr.io/flyr-gcr/nodejs-app
           docker:
             dockerfile: Dockerfile
+        - image: alpine-curl
+          docker:
+            dockerfile: Dockerfile.verify
       local:
         useDockerCLI: false
         useBuildkit: false
@@ -66,3 +82,12 @@ profiles:
             chartPath: helm/nodejs-app
             valuesFiles:
               - helm/nodejs-app/values-dev.yaml
+    verify:
+      - name: alpine-curl
+        container:
+          name: alpine-curl
+          image: "alpine-curl"
+          command: ["/bin/sh"]
+          args: ["-c", "curl -XGET http://nodejs-app-service:8081"]
+        executionMode:
+          kubernetesCluster: {}
