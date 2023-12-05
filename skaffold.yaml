@@ -12,11 +12,18 @@ build:
   local:
     useDockerCLI: false
     useBuildkit: false
+test:
+  - image: nodejs-app
+    structureTests:
+      - './structure-test/*'
 deploy:
   helm:
     releases:
       - name: nodejs-app
         chartPath: helm/nodejs-app
+        setValueTemplates:
+          image.repository: "{{.IMAGE_REPO_nodejs-app}}"
+          image.tag: "{{.IMAGE_DIGEST_nodejs-app}}"
         valuesFiles:
           - helm/nodejs-app/values-local.yaml
 manifests:
@@ -26,11 +33,6 @@ manifests:
         chartPath: helm/nodejs-app
         valuesFiles:
           - helm/nodejs-app/values-local.yaml
-test:
-  - image: nodejs-app
-    structureTests:
-      - './structure-test/*'
-
 profiles:
   - name: dev
     build:
@@ -40,6 +42,9 @@ profiles:
         - image: gcr.io/flyr-gcr/nodejs-app
           docker:
             dockerfile: Dockerfile
+      local:
+        useDockerCLI: false
+        useBuildkit: false
     test:
       - image: gcr.io/flyr-gcr/nodejs-app
         structureTests:
@@ -49,6 +54,9 @@ profiles:
         releases:
           - name: nodejs-app
             chartPath: helm/nodejs-app
+            setValueTemplates:
+              image.repository: "{{.IMAGE_REPO_nodejs-app}}"
+              image.tag: "{{.IMAGE_DIGEST_nodejs-app}}"
             valuesFiles:
               - helm/nodejs-app/values-dev.yaml
     manifests:

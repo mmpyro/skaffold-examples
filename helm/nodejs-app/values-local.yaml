@@ -1,4 +1,6 @@
 replicaCount: 1
 containerPort: 3000
 namespace: default
-image: nodejs-app
+image:
+  repository: nodejs-app
+  tag: latest
