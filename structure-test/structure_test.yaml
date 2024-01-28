@@ -9,6 +9,10 @@ fileExistenceTests:
     path: '/usr/src/app/app.js'
     shouldExist: true
 
+  - name: 'check tests'
+    path: '/usr/src/app/tests'
+    shouldExist: true
+
 metadataTest:
   exposedPorts: ["3000"]
   cmd: ["node", "app.js"]

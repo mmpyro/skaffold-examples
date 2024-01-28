@@ -19,23 +19,38 @@ test:
   - image: nodejs-app
     structureTests:
       - './structure-test/*'
+    custom:
+     - command: "npm --prefix ./src test"
+       dependencies:
+          paths:
+            - "**/*.js"
 deploy:
   helm:
     releases:
       - name: nodejs-app
         chartPath: helm/nodejs-app
         setValueTemplates:
-          image.repository: "{{.IMAGE_REPO_nodejs-app}}"
-          image.tag: "{{.IMAGE_DIGEST_nodejs-app}}"
+          image.repository: "{{.IMAGE_REPO_nodejs_app}}"
+          image.tag: "{{.IMAGE_DIGEST_nodejs_app}}"
         valuesFiles:
-          - helm/nodejs-app/values-local.yaml
+          - helm/nodejs-app/values.yaml
 manifests:
   helm:
+    flags:
+        upgrade:
+        - --wait
+        - --timeout=20m
+        install:
+        - --wait
+        - --timeout=20m
     releases:
       - name: nodejs-app
         chartPath: helm/nodejs-app
+        setValueTemplates:
+          image.repository: "{{.IMAGE_REPO_nodejs_app}}"
+          image.tag: "{{.IMAGE_DIGEST_nodejs_app}}"
         valuesFiles:
-          - helm/nodejs-app/values-local.yaml
+          - helm/nodejs-app/values.yaml
 verify:
   - name: alpine-curl
     container:
@@ -47,6 +62,34 @@ verify:
       kubernetesCluster: {}
 
 profiles:
+  - name: docker
+    build:
+      tagPolicy:
+        inputDigest: {}
+      artifacts:
+        - image: nodejs-app
+          docker:
+            dockerfile: Dockerfile
+        - image: alpine-curl
+          docker:
+            dockerfile: Dockerfile.verify
+      local:
+        push: false
+        useDockerCLI: false
+        useBuildkit: false
+    test:
+      - image: nodejs-app
+        structureTests:
+          - './structure-test/*'
+        custom:
+        - command: "npm --prefix ./src test"
+          dependencies:
+              paths:
+                - "**/*.js"
+    deploy:
+      docker:
+        images: [nodejs-app, alpine-curl]
+
   - name: dev
     build:
       tagPolicy:
@@ -60,7 +103,7 @@ profiles:
             dockerfile: Dockerfile.verify
       local:
         useDockerCLI: false
-        useBuildkit: false
+        useBuildkit: true
     test:
       - image: gcr.io/flyr-gcr/nodejs-app
         structureTests:

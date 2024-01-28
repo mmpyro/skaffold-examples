@@ -7,6 +7,7 @@
 | run  | ```skaffold run```  |
 | test  | ```skaffold test```  |
 | verify  | ```skaffold build -q \|skaffold verify --build-artifacts - ```  |
+| debug | ```skaffold build -q\|skaffold deploy -v debug --build-artifacts - 2>&1 \| grep -i 'Running command' ```|
 
 ## Run with *Dev* profile
 
