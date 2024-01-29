@@ -8,10 +8,12 @@ spec:
   selector:
     matchLabels:
       app: nodejs-app
+      env: {{ .Values.env }}
   template:
     metadata:
       labels:
         app: nodejs-app
+        env: {{ .Values.env }}
     spec:
       containers:
       - name: nodejs-app
@@ -25,6 +27,18 @@ spec:
           requests:
             cpu: "0.1"
             memory: "256Mi"
+        readinessProbe:
+          httpGet:
+            path: /
+            port: {{ .Values.containerPort }}
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        livenessProbe:  
+          httpGet:
+            path: /
+            port: {{ .Values.containerPort }}
+          initialDelaySeconds: 5
+          periodSeconds: 5
 
 ---
 

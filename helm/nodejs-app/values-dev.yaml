@@ -2,5 +2,5 @@ replicaCount: 2
 containerPort: 3000
 namespace: dev
 image:
- repository: gcr.io/flyr-gcr/nodejs-app
+ repository: nodejs-app
  tag: v1.0.0

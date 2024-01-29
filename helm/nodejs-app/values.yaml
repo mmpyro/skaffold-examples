@@ -4,3 +4,4 @@ namespace: default
 image:
   repository: nodejs-app
   tag: latest
+

@@ -14,7 +14,7 @@ build:
         dockerfile: Dockerfile.verify
   local:
     useDockerCLI: false
-    useBuildkit: false
+    useBuildkit: true
 test:
   - image: nodejs-app
     structureTests:
@@ -32,23 +32,8 @@ deploy:
         setValueTemplates:
           image.repository: "{{.IMAGE_REPO_nodejs_app}}"
           image.tag: "{{.IMAGE_DIGEST_nodejs_app}}"
-        valuesFiles:
-          - helm/nodejs-app/values.yaml
-manifests:
-  helm:
-    flags:
-        upgrade:
-        - --wait
-        - --timeout=20m
-        install:
-        - --wait
-        - --timeout=20m
-    releases:
-      - name: nodejs-app
-        chartPath: helm/nodejs-app
-        setValueTemplates:
-          image.repository: "{{.IMAGE_REPO_nodejs_app}}"
-          image.tag: "{{.IMAGE_DIGEST_nodejs_app}}"
+        setValues:
+          env: "local"
         valuesFiles:
           - helm/nodejs-app/values.yaml
 verify:
@@ -62,7 +47,7 @@ verify:
       kubernetesCluster: {}
 
 profiles:
-  - name: docker
+  - name: dev
     build:
       tagPolicy:
         inputDigest: {}
@@ -74,55 +59,23 @@ profiles:
           docker:
             dockerfile: Dockerfile.verify
       local:
-        push: false
         useDockerCLI: false
-        useBuildkit: false
+        useBuildkit: true
     test:
       - image: nodejs-app
         structureTests:
           - './structure-test/*'
-        custom:
-        - command: "npm --prefix ./src test"
-          dependencies:
-              paths:
-                - "**/*.js"
-    deploy:
-      docker:
-        images: [nodejs-app, alpine-curl]
-
-  - name: dev
-    build:
-      tagPolicy:
-        inputDigest: {}
-      artifacts:
-        - image: gcr.io/flyr-gcr/nodejs-app
-          docker:
-            dockerfile: Dockerfile
-        - image: alpine-curl
-          docker:
-            dockerfile: Dockerfile.verify
-      local:
-        useDockerCLI: false
-        useBuildkit: true
-    test:
-      - image: gcr.io/flyr-gcr/nodejs-app
-        structureTests:
-          - './structure-test/*'
     deploy:
       helm:
         releases:
           - name: nodejs-app
             chartPath: helm/nodejs-app
+            createNamespace: true
             setValueTemplates:
-              image.repository: "{{.IMAGE_REPO_nodejs-app}}"
-              image.tag: "{{.IMAGE_DIGEST_nodejs-app}}"
-            valuesFiles:
-              - helm/nodejs-app/values-dev.yaml
-    manifests:
-      helm:
-        releases:
-          - name: nodejs-app
-            chartPath: helm/nodejs-app
+              image.repository: "{{.IMAGE_REPO_nodejs_app}}"
+              image.tag: "{{.IMAGE_DIGEST_nodejs_app}}"
+            setValues:
+              env: "dev"
             valuesFiles:
               - helm/nodejs-app/values-dev.yaml
     verify:
